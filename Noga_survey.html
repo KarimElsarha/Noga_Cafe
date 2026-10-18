@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>نوجا كافيه | كن أحد المؤسسين</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <!-- مكتبة تحويل بطاقة المؤسس إلى صورة عالية الجودة للموبايل -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --forest-green: #1B4332;
+      --deep-green: #2D6A4F;
+      --mint-green: #95D5B2;
+      --soft-mint: #D8F3DC;
+      --wood-brown: #8B5E3C;
+      --wood-light: #D4A373;
+      --boho-cream: #FAF6F0;
+      --card-bg: #FFFFFF;
+      --text-dark: #1C2826;
+      --text-muted: #6C757D;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Tajawal', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--boho-cream);
+      background-image: radial-gradient(circle at 10% 20%, rgba(149, 213, 178, 0.25) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(212, 163, 115, 0.2) 0%, transparent 40%);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    /* شريط التقدم العلوي */
+    .progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: rgba(27, 67, 50, 0.1);
+      z-index: 100;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--wood-brown), var(--deep-green), var(--mint-green));
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* الحاوية الرئيسية للكارت */
+    .survey-card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 560px;
+      border-radius: 24px;
+      padding: 32px 24px 22px;
+      box-shadow: 0 15px 35px rgba(27, 67, 50, 0.08), 0 4px 12px rgba(139, 94, 60, 0.06);
+      border: 2px solid rgba(212, 163, 115, 0.35);
+      position: relative;
+      transition: all 0.35s ease;
+    }
+
+    /* الهيدر والشعار البوهيمي */
+    .brand-header {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--soft-mint);
+      color: var(--forest-green);
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: 1px solid var(--mint-green);
+    }
+
+    .step {
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .question-number {
+      color: var(--wood-brown);
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .question-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--forest-green);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .question-subtitle {
+      font-size: 0.95rem;
+      color: var(--wood-brown);
+      margin-bottom: 18px;
+      font-weight: 500;
+    }
+
+    /* تصميم الأزرار والخيارات */
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 22px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding-left: 4px;
+    }
+
+    .option-item {
+      background: var(--boho-cream);
+      border: 1.5px solid rgba(139, 94, 60, 0.25);
+      border-radius: 14px;
+      padding: 14px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-dark);
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .option-item:hover {
+      border-color: var(--deep-green);
+      background: #F2F9F5;
+    }
+
+    .option-item.selected {
+      background: var(--soft-mint);
+      border-color: var(--forest-green);
+      color: var(--forest-green);
+      font-weight: 700;
+      box-shadow: 0 4px 10px rgba(45, 106, 79, 0.12);
+    }
+
+    .priority-badge {
+      background: var(--forest-green);
+      color: #fff;
+      font-size: 0.78rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      display: none;
+      font-weight: 700;
+    }
+
+    .option-item.selected .priority-badge {
+      display: inline-block;
+    }
+
+    /* حقول الإدخال (16px لمنع الزووم التلقائي في الآيفون) */
+    .input-field, .textarea-field {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(139, 94, 60, 0.3);
+      background: var(--boho-cream);
+      font-size: 16px;
+      color: var(--text-dark);
+      margin-bottom: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-field:focus, .textarea-field:focus {
+      border-color: var(--forest-green);
+      background: #fff;
+    }
+
+    .textarea-field {
+      min-height: 85px;
+      resize: vertical;
+    }
+
+    /* أزرار التنقل */
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .btn {
+      padding: 14px 22px;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-next {
+      background: var(--forest-green);
+      color: #fff;
+      flex: 1;
+      box-shadow: 0 6px 15px rgba(27, 67, 50, 0.2);
+    }
+
+    .btn-next:hover {
+      background: var(--deep-green);
+    }
+
+    .btn-prev {
+      background: rgba(212, 163, 115, 0.2);
+      color: var(--wood-brown);
+    }
+
+    .btn-skip {
+      background: transparent;
+      color: var(--text-muted);
+      text-decoration: underline;
+      font-size: 0.9rem;
+      padding: 8px 12px;
+    }
+
+    /* ملاحظة السرية الثابتة في أسفل كل صفحة */
+    .privacy-footer {
+      text-align: center;
+      font-size: 0.78rem;
+      color: rgba(108, 117, 125, 0.65);
+      margin-top: 22px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(139, 94, 60, 0.2);
+    }
+
+    /* بطاقة المؤسس القابلة للتحميل كصورة */
+    .founder-pass {
+      background: linear-gradient(135deg, var(--forest-green), var(--deep-green));
+      color: #fff;
+      padding: 30px 22px;
+      border-radius: 22px;
+      text-align: center;
+      border: 3px solid var(--wood-light);
+      margin: 18px 0;
+      box-shadow: 0 12px 25px rgba(27, 67, 50, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .founder-pass .pass-tag {
+      display: inline-block;
+      background: rgba(212, 163, 115, 0.25);
+      color: var(--mint-green);
+      border: 1px solid var(--wood-light);
+      padding: 4px 14px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .founder-pass h3 {
+      color: var(--mint-green);
+      font-size: 1.35rem;
+      margin-bottom: 8px;
+    }
+
+    .founder-pass .founder-name {
+      font-size: 1.45rem;
+      font-weight: 800;
+      margin: 12px 0;
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px dashed rgba(149, 213, 178, 0.5);
+    }
+
+    /* أزرار المشاركة والتحميل في الشاشة الأخيرة */
+    .share-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-download {
+      background: var(--wood-brown);
+      color: #fff;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(139, 94, 60, 0.25);
+    }
+
+    .social-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn-whatsapp {
+      background: #25D366;
+      color: #fff;
+      flex: 1;
+      font-size: 0.95rem;
+      padding: 13px 12px;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
+    }
+
+    .btn-instagram {
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      color: #fff;
+      flex: 1;
+      font-size: 0.95rem;
+      padding: 13px 12px;
+      box-shadow: 0 4px 12px rgba(220, 39, 67, 0.25);
+    }
+
+    .toast-note {
+      display: none;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--deep-green);
+      background: var(--soft-mint);
+      padding: 8px 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+      font-weight: 700;
+    }
+
+    .error-msg {
+      color: #D9534F;
+      font-size: 0.88rem;
+      margin-bottom: 12px;
+      display: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div class="survey-card">
+    <div class="brand-header">
+      <span class="brand-badge">🌿 نوجا كافيه | Noga Café</span>
+    </div>
+
+    <!-- شاشة الترحيب -->
+    <div class="step active" data-step="0">
+      <h1 class="question-title" style="text-align: center; font-size: 1.55rem;">أهلاً بك في عائلة المؤسسين</h1>
+      <p style="text-align: center; font-size: 1.05rem; line-height: 1.7; color: var(--wood-brown); margin: 18px 0 26px;">
+        "إنه ليس مجرد مكان، إنه مساحتك الخاصة.. كن أحد مؤسسينا وشاركنا في اختيار تفاصيل حلمنا القادم في السويس."
+      </p>
+      <div class="nav-buttons">
+        <button class="btn btn-next" onclick="nextStep()">ابدأ رحلة التصميم الآن ✨</button>
+      </div>
+    </div>
+
+    <!-- 1. السن -->
+    <div class="step" data-step="1" data-type="single" data-key="age" data-required="true">
+      <span class="question-number">خطوة 1 من 13</span>
+      <h2 class="question-title">سنك كام؟</h2>
+      <div class="options-grid">
+        <div class="option-item" data-val="أقل من 18"><span>أقل من 18</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="18–24"><span>18–24</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="25–34"><span>25–34</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="35–44"><span>35–44</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="45 فأكتر"><span>45 فأكتر</span><span class="priority-badge">✓</span></div>
+      </div>
+      <div class="error-msg">يرجى اختيار فئتك العمرية للمتابعة</div>
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="prevStep()">السابق</button>
+        <button class="btn btn-next" onclick="nextStep()">التالي</button>
+      </div>
+    </div>
+
+    <!-- 2. عدد المرات -->
+    <div class="step" data-step="2" data-type="single" data-key="frequency" data-required="true">
+      <span class="question-number">خطوة 2 من 13</span>
+      <h2 class="question-title">بتروح كافيه كام مرة في الأسبوع؟</h2>
+      <div class="options-grid">
+        <div class="option-item" data-val="مش بروح"><span>مش بروح</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="مرة"><span>مرة</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="2–3 مرات"><span>2–3 مرات</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="4 مرات أو أكتر"><span>4 مرات أو أكتر</span><span class="priority-badge">✓</span></div>
+      </div>
+      <div class="error-msg">يرجى اختيار إجابة واحدة</div>
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="prevStep()">السابق</button>
+        <button class="btn btn-next" onclick="nextStep()">التالي</button>
+      </div>
+    </div>
+
+    <!-- 3. سبب الزيارة -->
+    <div class="step" data-step="3" data-type="multi" data-max="3" data-key="purpose" data-required="true">
+      <span class="question-number">خطوة 3 من 13</span>
+      <h2 class="question-title">بتروح الكافيه ليه غالباً؟</h2>
+      <p class="question-subtitle">اختار لحد 3 خيارات</p>
+      <div class="options-grid">
+        <div class="option-item" data-val="قعدة مع أصحاب"><span>قعدة مع أصحاب</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="شغل أو مذاكرة"><span>شغل أو مذاكرة</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="فصلان وهدوء"><span>فصلان وهدوء</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="مشروب سريع وأمشي (Takeaway)"><span>مشروب سريع وأمشي (Takeaway)</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="فطار الصبح مع قهوة"><span>فطار الصبح مع قهوة</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="مناسبات"><span>مناسبات</span><span class="priority-badge">✓</span></div>
+      </div>
+      <div class="error-msg">يرجى اختيار سبب واحد على الأقل (بحد أقصى 3)</div>
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="prevStep()">السابق</button>
+        <button class="btn btn-next" onclick="nextStep()">التالي</button>
+      </div>
+    </div>
+
+    <!-- 4. الوقت المفضل -->
+    <div class="step" data-step="4" data-type="single" data-key="preferred_time" data-required="true">
+      <span class="question-number">خطوة 4 من 13</span>
+      <h2 class="question-title">إيه أنسب وقت ليك؟</h2>
+      <div class="options-grid">
+        <div class="option-item" data-val="الصبح"><span>الصبح ☀️</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="بعد الظهر"><span>بعد الظهر 🌤️</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="المساء"><span>المساء 🌙</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="بعد منتصف الليل"><span>بعد منتصف الليل ✨</span><span class="priority-badge">✓</span></div>
+      </div>
+      <div class="error-msg">يرجى اختيار وقتك المفضل</div>
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="prevStep()">السابق</button>
+        <button class="btn btn-next" onclick="nextStep()">التالي</button>
+      </div>
+    </div>
+
+    <!-- 5. اختيار المناطق في السويس (عشوائي + أولوية 1-2-3) -->
+    <div class="step" data-step="5" data-type="ranked" data-max="3" data-key="locations" data-required="true">
+      <span class="question-number">خطوة 5 من 13</span>
+      <h2 class="question-title">تحب تشوف «نوجا كافيه» فين في السويس؟</h2>
+      <p class="question-subtitle">اضغط على أفضل 3 مناطق بالترتيب (الأولوية 1 ثم 2 ثم 3)</p>
+      <div class="options-grid" id="locationsContainer"></div>
+      <input type="text" id="otherLocationInput" class="input-field" placeholder="اكتب اسم المكان المقترح هنا..." style="display:none; margin-top:8px;">
+      <div class="error-msg">يرجى اختيار منطقة واحدة على الأقل (وحتى 3 مناطق بالترتيب)</div>
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="prevStep()">السابق</button>
+        <button class="btn btn-next" onclick="nextStep()">التالي</button>
+      </div>
+    </div>
+
+    <!-- 6. معايير اختيار المكان (بالترتيب 1-2-3) -->
+    <div class="step" data-step="6" data-type="ranked" data-max="3" data-key="location_criteria" data-required="true">
+      <span class="question-number">خطوة 6 من 13</span>
+      <h2 class="question-title">إيه الأهم في اختيار المكان؟</h2>
+      <p class="question-subtitle">اضغط على أهم 3 عناصر بالترتيب</p>
+      <div class="options-grid">
+        <div class="option-item" data-val="قريب مني"><span>قريب مني</span><span class="priority-badge"></span></div>
+        <div class="option-item" data-val="ركنة عربية سهلة"><span>ركنة عربية سهلة</span><span class="priority-badge"></span></div>
+        <div class="option-item" data-val="هادي"><span>هادي</span><span class="priority-badge"></span></div>
+        <div class="option-item" data-val="إطلالة مميزة"><span>إطلالة مميزة</span><span class="priority-badge"></span></div>
+        <div class="option-item" data-val="مفتوح لوقت متأخر"><span>مفتوح لوقت متأخر</span><span class="priority-badge"></span></div>
+        <div class="option-item" data-val="أمان وإضاءة"><span>أمان وإضاءة</span><span class="priority-badge"></span></div>
+      </div>
+      <div class="error-msg">يرجى اختيار أهم 3 عناصر بالترتيب</div>
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="prevStep()">السابق</button>
+        <button class="btn btn-next" onclick="nextStep()">التالي</button>
+      </div>
+    </div>
+
+    <!-- 7. مفتوح ولا مقفول -->
+    <div class="step" data-step="7" data-type="single" data-key="seating_type" data-required="true">
+      <span class="question-number">خطوة 7 من 13</span>
+      <h2 class="question-title">تفضل الكافيه يكون؟</h2>
+      <div class="options-grid">
+        <div class="option-item" data-val="مفتوح (هواء طلق)"><span>مفتوح (هواء طلق ونباتات) 🌿</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="مقفول (تكييف)"><span>مقفول (مكيف وهادي) ❄️</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="الاتنين"><span>الاتنين (مساحة داخلية وخارجية) ✨</span><span class="priority-badge">✓</span></div>
+      </div>
+      <div class="error-msg">يرجى اختيار تفضيلك</div>
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="prevStep()">السابق</button>
+        <button class="btn btn-next" onclick="nextStep()">التالي</button>
+      </div>
+    </div>
+
+    <!-- 8. إيه اللي يخليك تقعد ساعات -->
+    <div class="step" data-step="8" data-type="multi" data-max="4" data-key="stay_factors" data-required="true">
+      <span class="question-number">خطوة 8 من 13</span>
+      <h2 class="question-title">إيه اللي يخليك تقعد ساعات؟</h2>
+      <p class="question-subtitle">اختار لحد 4 خيارات</p>
+      <div class="options-grid">
+        <div class="option-item" data-val="واي فاي سريع"><span>واي فاي سريع</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="فيش كهرباء قريبة من كل قعدة"><span>فيش كهرباء قريبة من كل قعدة 🔌</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="مساحة هادية للشغل"><span>مساحة هادية للشغل</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="ديكور بوهيمي ونباتات مريحة للعين"><span>ديكور بوهيمي ونباتات مريحة للعين 🌱</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="موسيقى هادية"><span>موسيقى هادية</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="قعدات خشبية ومراتب مريحة"><span>قعدات خشبية ومراتب مريحة</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="منطقة خارجية"><span>منطقة خارجية</span><span class="priority-badge">✓</span></div>
+      </div>
+      <div class="error-msg">يرجى اختيار عنصر واحد على الأقل (بحد أقصى 4)</div>
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="prevStep()">السابق</button>
+        <button class="btn btn-next" onclick="nextStep()">التالي</button>
+      </div>
+    </div>
+
+    <!-- 9. نوع الموسيقى -->
+    <div class="step" data-step="9" data-type="single" data-key="music" data-required="true">
+      <span class="question-number">خطوة 9 من 13</span>
+      <h2 class="question-title">تحب أنهي نوع موسيقى؟</h2>
+      <div class="options-grid">
+        <div class="option-item" data-val="كلاسيك"><span>كلاسيك 🎻</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="جاز"><span>جاز (Jazz & Lo-Fi) 🎷</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="روك هادي"><span>روك هادي 🎸</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="عربي هادي"><span>عربي هادي 🎶</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="من غير موسيقى"><span>من غير موسيقى 🤫</span><span class="priority-badge">✓</span></div>
+      </div>
+      <div class="error-msg">يرجى اختيار نوع الموسيقى</div>
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="prevStep()">السابق</button>
+        <button class="btn btn-next" onclick="nextStep()">التالي</button>
+      </div>
+    </div>
+
+    <!-- 10. إيه الأهم عندك (اختار اتنين) -->
+    <div class="step" data-step="10" data-type="multi" data-max="2" data-key="top_two" data-required="true">
+      <span class="question-number">خطوة 10 من 13</span>
+      <h2 class="question-title">إيه الأهم عندك في التجربة ككل؟</h2>
+      <p class="question-subtitle">اختار حاجتين بس</p>
+      <div class="options-grid">
+        <div class="option-item" data-val="جودة القهوة"><span>جودة القهوة ☕</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="الأسعار"><span>الأسعار المناسبة 💳</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="سرعة الخدمة"><span>سرعة الخدمة (American Service) ⚡</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="الجو العام"><span>الجو العام والديكور 🌿</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="النظافة"><span>النظافة الفائقة ✨</span><span class="priority-badge">✓</span></div>
+      </div>
+      <div class="error-msg">يرجى اختيار عنصرين بحد أقصى</div>
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="prevStep()">السابق</button>
+        <button class="btn btn-next" onclick="nextStep()">التالي</button>
+      </div>
+    </div>
+
+    <!-- 11. الأسئلة المقالية مع إمكانية التخطي -->
+    <div class="step" data-step="11" data-type="essay">
+      <span class="question-number">خطوة 11 من 13 (اختياري)</span>
+      <h2 class="question-title">مساحتك الحرة للإبداع 💡</h2>
+      <p class="question-subtitle">إيه الناقص في كافيهات السويس دلوقتي؟</p>
+      <textarea id="missingInSuez" class="textarea-field" placeholder="اكتب اللي بتتمناه ومش لاقيه في السويس..."></textarea>
+      
+      <p class="question-subtitle" style="margin-top: 8px;">أي اقتراح تاني حابب تضيفه للمكان؟</p>
+      <textarea id="otherSuggestions" class="textarea-field" placeholder="فكرة في المنيو، طريقة تقديم، أو تفصيلة في الديكور..."></textarea>
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="prevStep()">السابق</button>
+        <button class="btn btn-skip" onclick="nextStep()">تخطي</button>
+        <button class="btn btn-next" onclick="nextStep()">التالي</button>
+      </div>
+    </div>
+
+    <!-- 12. حائط المشاركين -->
+    <div class="step" data-step="12" data-type="single" data-key="wall_of_fame" data-required="true">
+      <span class="question-number">خطوة 12 من 13</span>
+      <h2 class="question-title">تحب اسمك وصورتك يظهروا على «حائط المشاركين» في الكافيه بعد الافتتاح؟</h2>
+      <div class="options-grid">
+        <div class="option-item" data-val="الاسم والصورة"><span>أكيد! الاسم والصورة 📸</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="الاسم بس"><span>الاسم بس ✍️</span><span class="priority-badge">✓</span></div>
+        <div class="option-item" data-val="أفضل مجهول"><span>أفضل أكون شريك مجهول 🤍</span><span class="priority-badge">✓</span></div>
+      </div>
+      <div class="error-msg">يرجى اختيار تفضيلك</div>
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="prevStep()">السابق</button>
+        <button class="btn btn-next" onclick="nextStep()">التالي</button>
+      </div>
+    </div>
+
+    <!-- 13. بيانات التواصل والدعوة الخاصة -->
+    <div class="step" data-step="13" data-type="contact">
+      <span class="question-number">الخطوة الأخيرة</span>
+      <h2 class="question-title">سيب بياناتك وهنبعتلك دعوة خاصة يوم الافتتاح 🎉</h2>
+      <p class="question-subtitle">اسمك هيكون على «حائط المشاركين» بعد الافتتاح، وهنتواصل معاك قبلها عشان الصورة.<br><small>(الاسم والتواصل اختياريين، وأرقامكم محفوظة عندنا بس)</small></p>
+      
+      <input type="text" id="clientName" class="input-field" placeholder="الاسم الثنائي أو اللقب">
+      <input type="tel" id="clientPhone" class="input-field" placeholder="رقم الواتساب (لإرسال دعوة الافتتاح)">
+      <input type="text" id="clientInsta" class="input-field" placeholder="حساب إنستجرام (@username)">
+
+      <div class="nav-buttons">
+        <button class="btn btn-prev" onclick="prevStep()">السابق</button>
+        <button class="btn btn-next" id="submitBtn" onclick="submitSurvey()">تأكيد وإصدار بطاقة المؤسس 🌿</button>
+      </div>
+    </div>
+
+    <!-- 14. شاشة النهاية وبطاقة المؤسس القابلة للتحميل والمشاركة -->
+    <div class="step" data-step="14">
+      <h2 class="question-title" style="text-align: center;">شكراً لأنك جزء من البداية! 💚</h2>
+      
+      <!-- البطاقة التي سيتم تصويرها وتحويلها لصورة للموبايل -->
+      <div class="founder-pass" id="founderPassCard">
+        <span class="pass-tag">NOGA CAFÉ • SUEZ</span>
+        <h3>🌿 بطاقة شريك مؤسس 🌿</h3>
+        <div class="founder-name" id="founderNameDisplay">شريك نجاح نوجا كافيه</div>
+        <p style="font-size: 0.9rem; opacity: 0.95; line-height: 1.5;">
+          ساهمت في تصميم الهوية والتفاصيل الخاصة بـ «نوجا كافيه» في السويس
+        </p>
+      </div>
+
+      <!-- أزرار التحميل والمشاركة عبر واتساب وإنستجرام -->
+      <div class="share-actions">
+        <button class="btn btn-download" onclick="downloadFounderCard()">
+          📥 تحميل البطاقة كصورة على الموبايل
+        </button>
+        
+        <div class="social-row">
+          <button class="btn btn-whatsapp" onclick="shareOnWhatsApp()">
+            💬 إرسال على واتساب
+          </button>
+          <button class="btn btn-instagram" onclick="shareOnInstagram()">
+            📸 مشاركة على إنستجرام
+          </button>
+        </div>
+      </div>
+
+      <div class="toast-note" id="toastMsg"></div>
+    </div>
+
+    <!-- الجملة الثابتة في أسفل كل صفحة -->
+    <div class="privacy-footer">
+      إجاباتك سرية، وبنستخدمها لتصميم المكان بس
+    </div>
+  </div>
+
+  <script>
+    // ضع رابط Google Apps Script الخاص بك هنا بعد نشره
+    const GOOGLE_SCRIPT_URL = "PUT_YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE";
+
+    // توليد وترتيب مناطق السويس عشوائياً في كل مرة يفتح فيها العميل الموقع
+    const suezLocations = [
+      "منتجع لوسيندا",
+      "استاد السويس",
+      "الكورنيش الجديد (سور حديقة الشهداء)",
+      "أول شارع المحافظة",
+      "كاستيلو (سابقاً)",
+      "الملاحة الجديدة",
+      "شارع بورسعيد (الغريب)",
+      "أرض المعارض",
+      "الشاليهات (السرايا سابقاً)"
+    ];
+
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    const locationsContainer = document.getElementById('locationsContainer');
+    const shuffledLocations = shuffleArray([...suezLocations]);
+    shuffledLocations.push("مكان آخر");
+
+    shuffledLocations.forEach(loc => {
+      const div = document.createElement('div');
+      div.className = 'option-item';
+      div.setAttribute('data-val', loc);
+      div.innerHTML = `<span>${loc}</span><span class="priority-badge"></span>`;
+      locationsContainer.appendChild(div);
+    });
+
+    // إدارة حالة الإجابات
+    const answers = {};
+    let currentStepIndex = 0;
+    const steps = document.querySelectorAll('.step');
+
+    document.querySelectorAll('.step').forEach(stepEl => {
+      const type = stepEl.getAttribute('data-type');
+      const key = stepEl.getAttribute('data-key');
+      const max = parseInt(stepEl.getAttribute('data-max') || '1', 10);
+
+      if (!type || type === 'essay' || type === 'contact') return;
+      answers[key] = [];
+
+      const items = stepEl.querySelectorAll('.option-item');
+      items.forEach(item => {
+        item.addEventListener('click', () => {
+          const val = item.getAttribute('data-val');
+
+          if (type === 'single') {
+            items.forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            answers[key] = [val];
+          } else if (type === 'multi' || type === 'ranked') {
+            const idx = answers[key].indexOf(val);
+            if (idx > -1) {
+              answers[key].splice(idx, 1);
+              item.classList.remove('selected');
+            } else {
+              if (answers[key].length < max) {
+                answers[key].push(val);
+                item.classList.add('selected');
+              }
+            }
+            if (type === 'ranked') {
+              items.forEach(i => {
+                const v = i.getAttribute('data-val');
+                const rankIndex = answers[key].indexOf(v);
+                const badge = i.querySelector('.priority-badge');
+                if (rankIndex > -1) {
+                  badge.textContent = `الأولوية ${rankIndex + 1}`;
+                } else {
+                  badge.textContent = '';
+                }
+              });
+            }
+            if (key === 'locations') {
+              const otherInput = document.getElementById('otherLocationInput');
+              otherInput.style.display = answers[key].includes('مكان آخر') ? 'block' : 'none';
+            }
+          }
+          stepEl.querySelector('.error-msg').style.display = 'none';
+        });
+      });
+    });
+
+    function updateProgress() {
+      const percent = (currentStepIndex / (steps.length - 1)) * 100;
+      document.getElementById('progressBar').style.width = percent + '%';
+    }
+
+    function nextStep() {
+      const currentEl = steps[currentStepIndex];
+      const required = currentEl.getAttribute('data-required') === 'true';
+      const key = currentEl.getAttribute('data-key');
+
+      if (required && (!answers[key] || answers[key].length === 0)) {
+        currentEl.querySelector('.error-msg').style.display = 'block';
+        return;
+      }
+
+      steps[currentStepIndex].classList.remove('active');
+      currentStepIndex++;
+      steps[currentStepIndex].classList.add('active');
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prevStep() {
+      if (currentStepIndex > 0) {
+        steps[currentStepIndex].classList.remove('active');
+        currentStepIndex--;
+        steps[currentStepIndex].classList.add('active');
+        updateProgress();
+      }
+    }
+
+    function submitSurvey() {
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.textContent = 'جاري الحفظ... ⏳';
+      submitBtn.disabled = true;
+
+      const otherLocText = document.getElementById('otherLocationInput').value.trim();
+      const finalLocations = (answers['locations'] || []).map(loc => 
+        loc === 'مكان آخر' && otherLocText ? `مكان آخر (${otherLocText})` : loc
+      );
+
+      const clientName = document.getElementById('clientName').value.trim();
+      if (clientName) {
+        document.getElementById('founderNameDisplay').textContent = clientName;
+      }
+
+      const payload = {
+        name: clientName || 'غير مسجل',
+        phone: document.getElementById('clientPhone').value.trim(),
+        instagram: document.getElementById('clientInsta').value.trim(),
+        age: (answers['age'] || []).join(', '),
+        frequency: (answers['frequency'] || []).join(', '),
+        purpose: (answers['purpose'] || []).join(' | '),
+        preferred_time: (answers['preferred_time'] || []).join(', '),
+        locations: finalLocations.join(' -> '),
+        location_criteria: (answers['location_criteria'] || []).join(' -> '),
+        seating_type: (answers['seating_type'] || []).join(', '),
+        stay_factors: (answers['stay_factors'] || []).join(' | '),
+        music: (answers['music'] || []).join(', '),
+        top_two: (answers['top_two'] || []).join(' | '),
+        missing_in_suez: document.getElementById('missingInSuez').value.trim(),
+        other_suggestions: document.getElementById('otherSuggestions').value.trim(),
+        wall_of_fame: (answers['wall_of_fame'] || []).join(', ')
+      };
+
+      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "PUT_YOUR_GOOGLE_SCRIPT_WEB_APP_URL_HERE") {
+        fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).finally(() => {
+          nextStep();
+        });
+      } else {
+        nextStep();
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastMsg');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 4000);
+    }
+
+    // 1. تحميل بطاقة المؤسس كصورة عالية الجودة على الموبايل
+    function downloadFounderCard() {
+      const card = document.getElementById('founderPassCard');
+      showToast('جاري تجهيز البطاقة بجودة عالية... 🌿');
+      html2canvas(card, { scale: 3, backgroundColor: null }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'Noga-Cafe-Founder-Pass.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        showToast('تم حفظ صورة البطاقة على موبايلك بنجاح! ✅');
+      });
+    }
+
+    // 2. مشاركة مباشرة عبر واتساب
+    function shareOnWhatsApp() {
+      const surveyUrl = window.location.href;
+      const shareText = `أنا شاركت كشريك مؤسس في اختيار تفاصيل ومكان "نوجا كافيه" الجديد في السويس 🌿☕.. ادخل صمم الكافيه على ذوقك وطلع بطاقة المؤسس باسمك من هنا:\n${surveyUrl}`;
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+
+    // 3. مشاركة البطاقة والرابط عبر إنستجرام (Story أو DM)
+    async function shareOnInstagram() {
+      const card = document.getElementById('founderPassCard');
+      const surveyUrl = window.location.href;
+      const shareText = `شاركت في تصميم نوجا كافيه في السويس 🌿☕ صمم مساحتك الخاصة من الرابط: ${surveyUrl}`;
+
+      // نسخ الرابط تلقائياً ليستطيع لصقه في الاستوري أو الرسائل
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(surveyUrl).catch(() => {});
+      }
+
+      try {
+        const canvas = await html2canvas(card, { scale: 3, backgroundColor: null });
+        canvas.toBlob(async (blob) => {
+          const file = new File([blob], 'Noga-Cafe-Founder.png', { type: 'image/png' });
+
+          // إذا كان الموبايل يدعم مشاركة ملف الصورة مباشرة إلى تطبيق إنستجرام
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: 'نوجا كافيه | بطاقة شريك مؤسس',
+              text: shareText
+            });
+          } else {
+            // بديل تلقائي: حفظ الصورة وفتح تطبيق إنستجرام
+            const link = document.createElement('a');
+            link.download = 'Noga-Cafe-Founder.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showToast('تم حفظ البطاقة ونسخ الرابط! جاري فتح إنستجرام لمشاركتها في الـ Story أو الرسائل 📸');
+            setTimeout(() => {
+              window.location.href = 'instagram://story-camera';
+              setTimeout(() => {
+                window.open('https://www.instagram.com/', '_blank');
+              }, 1200);
+            }, 1200);
+          }
+        }, 'image/png');
+      } catch (err) {
+        window.open('https://www.instagram.com/', '_blank');
+      }
+    }
+  </script>
+</body>
+</html>
